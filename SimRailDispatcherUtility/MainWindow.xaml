@@ -59,14 +59,13 @@
 
             <DockPanel LastChildFill="True">
 
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center">
-
-                    <TextBlock Text="SimRail Dispatcher Utility"
-                               Foreground="#E6EAF2"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Margin="0,0,20,0"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock 
+                        Text="SimRail Dispatcher Utility"
+                        Foreground="#E6EAF2"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Margin="0,0,20,0"/>
 
                     <Button x:Name="AddTrain_Button"
                             Content="Add Train"
@@ -79,42 +78,54 @@
                             Cursor="Hand"/>
 
                     <TextBlock Text="Station:"
-                               Foreground="#B9C0D0"
-                               Margin="20,0,6,0"
-                               VerticalAlignment="Center"/>
+                        Foreground="#B9C0D0"
+                        Margin="20,0,6,0"
+                        VerticalAlignment="Center"/>
 
                     <ComboBox x:Name="SelectedStation_ComboBox"
-                              Width="240"
-                              Height="32"
-                              SelectionChanged="SelectedStation_ComboBox_SelectionChanged"
-                              BorderThickness="1"
-                              Padding="6,2"
-                              VerticalContentAlignment="Center"/>
+                        Width="240"
+                        Height="32"
+                        SelectionChanged="SelectedStation_ComboBox_SelectionChanged"
+                        BorderThickness="1"
+                        Padding="6,2"
+                        VerticalContentAlignment="Center"/>
                 </StackPanel>
 
-                <TextBlock DockPanel.Dock="Right"
-                           Text="Right-click row → Delete"
-                           Foreground="#7F8AA3"
-                           Margin="10, 0, 0, 0"
-                           VerticalAlignment="Center"/>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock
+                        Width="150"
+                        Text="Right-click row → Delete"
+                        Foreground="#7F8AA3"
+                        Margin="10, 0, 0, 0"
+                        VerticalAlignment="Center"/>
+                    <Button x:Name="EraseDepartedTrains_Button"
+                        Content="Erase Departed Trains"
+                        Width="110"
+                        Height="32"
+                        Click="EraseDepartedTrains_Button_Click"
+                        Background="#2D6CDF"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"/>
+                </StackPanel>
             </DockPanel>
         </Border>
 
         <!-- Table Card -->
         <Border Grid.Row="2"
-                Background="#161A22"
-                CornerRadius="12"
-                Padding="10"
-                BorderBrush="#2A3140"
-                BorderThickness="1">
+            Background="#161A22"
+            CornerRadius="12"
+            Padding="10"
+            BorderBrush="#2A3140"
+            BorderThickness="1">
 
             <ListView x:Name="TrainTimers_ListView"
-                      AlternationCount="2"
-                      Background="Transparent"
-                      BorderThickness="0"
-                      Foreground="#E6EAF2"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
+              AlternationCount="2"
+              Background="Transparent"
+              BorderThickness="0"
+              Foreground="#E6EAF2"
+              ScrollViewer.VerticalScrollBarVisibility="Auto"
+              ScrollViewer.HorizontalScrollBarVisibility="Auto">
 
                 <ListView.ContextMenu>
                     <ContextMenu>

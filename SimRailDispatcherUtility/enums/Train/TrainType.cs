@@ -3,7 +3,7 @@
 public enum TrainType
 {
     Intercity   = 0,
-    Passenger   = 1,
+    Regional    = 1,
     Freight     = 2,
     Unknown     = 3,
 }

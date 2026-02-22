@@ -3,10 +3,13 @@ using SimRailDispatcherUtility.Model.Train;
 using SimRailDispatcherUtility.Services;
 using SimRailDispatcherUtility.Windows;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Threading;
 using Microsoft.Extensions.Logging;
 
@@ -29,6 +32,7 @@ public partial class MainWindow : Window
 
     private readonly DispatcherTimer _gcTimer = new();
     private int _gcOldTrainsDelay = 100;
+    private ICollectionView _trainsView;
 
     public MainWindow(ILogger<MainWindow> logger, StationService stationService, Func<AddTrainWindow> addTrainFactory)
     {
@@ -48,7 +52,13 @@ public partial class MainWindow : Window
         try
         {
             _trains = new ObservableCollection<TrainRow>();
-            TrainTimers_ListView.ItemsSource = _trains;
+            
+            _trainsView = CollectionViewSource.GetDefaultView(_trains);
+            _trainsView.SortDescriptions.Add(
+                new SortDescription(nameof(TrainRow.DepartureTime), ListSortDirection.Ascending)
+            );
+
+            TrainTimers_ListView.ItemsSource = _trainsView;
 
             _scheduler = new TrainReminderScheduler(_trains, Dispatcher);
             _scheduler.ReminderFired += OnReminderFired;
@@ -68,7 +78,7 @@ public partial class MainWindow : Window
                 "Ostrava-Svinov",
                 "H4",
                 DateTime.Parse("22.2.2026 01:29:00", new CultureInfo("cs-CZ")),
-                StopType.PassengerStop,
+                StopType.Passenger,
                 TrainType.Intercity,
                 true,
                 TimeSpan.FromMinutes(1))));
@@ -186,5 +196,14 @@ public partial class MainWindow : Window
         _stationService.ComputeNeighborStations(selectedStation);
 
         this.IsEnabled = true;
+    }
+
+    private void EraseDepartedTrains_Button_Click(object sender, RoutedEventArgs e)
+    {
+        for (int i = _trains.Count - 1; i >= 0; i--)
+        {
+            if (_trains[i].TimeToDeparture <= TimeSpan.Zero)
+                _trains.RemoveAt(i);
+        }
     }
 }

@@ -6,9 +6,9 @@ public static class StopTypeValues
 {
     public static StopType[] All { get; } =
     {
-        StopType.PassengerStop,
-        StopType.TechnicalStop,
-        StopType.EarlyArrivalStop
+        StopType.Passenger,
+        StopType.Technical,
+        StopType.EarlyArrival
     };
 }
 
@@ -17,7 +17,7 @@ public static class TrainTypeValues
     public static TrainType[] All { get; } =
     {
         TrainType.Intercity,
-        TrainType.Passenger,
+        TrainType.Regional,
         TrainType.Freight
     };
 }

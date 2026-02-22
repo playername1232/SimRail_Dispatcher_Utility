@@ -45,16 +45,16 @@ public sealed class TrainRow : INotifyPropertyChanged
 
     public string StopTypeString => Train.StopType switch
     {
-        StopType.PassengerStop => "Passenger",
-        StopType.TechnicalStop => "Technical",
-        StopType.EarlyArrivalStop => "Early Arrival",
+        StopType.Passenger => "Passenger",
+        StopType.Technical => "Technical",
+        StopType.EarlyArrival => "Early Arrival",
         _ => Train.StopType.ToString()
     };
 
     public string TrainTypeString => Train.TrainType switch
     {
         TrainType.Intercity => "Intercity",
-        TrainType.Passenger => "Passenger",
+        TrainType.Regional => "Regional",
         TrainType.Freight => "Freight",
         _ => Train.TrainType.ToString()
     };

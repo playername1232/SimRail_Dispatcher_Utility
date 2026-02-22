@@ -63,8 +63,6 @@ namespace SimRailDispatcherUtility.Windows
             int id          = 0,
                 minRemind   = 0;
 
-            string track = "";
-
             string? errors = null;
 
             Action<string> handleAppendError = (err) =>
@@ -156,7 +154,7 @@ namespace SimRailDispatcherUtility.Windows
                 id,
                 PreviousPost_ComboBox.Text,
                 NextPost_ComboBox.Text,
-                track,
+                Track_TextBox.Text,
                 departure!.Value,
                 stopType!.Value,
                 trainType!.Value,

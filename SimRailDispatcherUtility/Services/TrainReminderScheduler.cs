@@ -37,7 +37,13 @@ public sealed class TrainReminderScheduler : IDisposable
     {
         var now = DateTime.Now;
 
-        foreach (var row in _rows)
+        List<TrainRow> snapshot;
+        lock (_rows)
+        {
+            snapshot = _rows.ToList();
+        }
+
+        foreach (var row in snapshot)
         {
             var dep = row.DepartureTime;
             var offset = row.ReminderOffset;
