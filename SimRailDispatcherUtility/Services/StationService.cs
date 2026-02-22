@@ -46,8 +46,6 @@ public class StationService
             Directory.CreateDirectory(dir);
 
             await File.WriteAllTextAsync(filePath, json, Encoding.UTF8);
-
-            _logger.LogInformation("Updated GetAllTimetables json file.. location: {Location}", filePath);
         }
         catch (Exception ex)
         {
@@ -128,11 +126,6 @@ public class StationService
         CurrentNeighborStations.Clear();
         foreach (var n in neighbors.OrderBy(x => x))
             CurrentNeighborStations.Add(n);
-
-        foreach (var currentNeighborStation in CurrentNeighborStations)
-        {
-            _logger.LogInformation("For station {Station} loaded Neighbor: {Neighbor}", stationName, currentNeighborStation);
-        }
     }
 
     private string GetStationsBaseUrl()

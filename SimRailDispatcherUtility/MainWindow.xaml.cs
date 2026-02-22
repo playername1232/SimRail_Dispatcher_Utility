@@ -88,8 +88,6 @@ public partial class MainWindow : Window
 
     private void OnReminderFired(object? sender, TrainRow row)
     {
-        _logger.LogInformation("REMINDER: Train {Id} departs in ~1 minute ({Dep:g})", row.Id, row.DepartureTime);
-
         // TODO: lepší je toast / tray icon; tohle je jen demo
         MessageBox.Show(
             $"Train {row.Id} departs in ~1 minute!\n{row.PreviousPost} → {row.NextPost}\nTrack {row.TrackNumber}\nDeparture: {row.DepartureTime:g}",

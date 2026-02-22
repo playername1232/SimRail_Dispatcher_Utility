@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SimRailDispatcherUtility")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+357ec368ed674b87377ba67459c623aa2873857a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+390769209aedf4d78df602646cca325d5d329a37")]
 [assembly: System.Reflection.AssemblyProductAttribute("SimRailDispatcherUtility")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SimRailDispatcherUtility")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
