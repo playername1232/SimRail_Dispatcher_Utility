@@ -20,17 +20,18 @@ namespace SimRailDispatcherUtility.Windows
     /// <summary>
     /// Interaction logic for AddTrain.xaml
     /// </summary>
-    public partial class AddTrain : Window
+    public partial class AddTrainWindow : Window
     {
-        public AddTrain()
+        public AddTrainWindow(StationService stationService)
         {
             InitializeComponent();
 
+            DepartureDate_DatePicker.SelectedDate = DateTime.Today;
+            DepartureTime_TextBox.Text = DateTime.Now.ToString("HH:mm");
+
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-            var stations = (AppConfig.Config
-               .GetSection("AvailablePosts")
-               .Get<string[]>() ?? []).ToList()  ?? throw new InvalidOperationException("AvailablePosts not found in config");
+            var stations = stationService?.CurrentNeighborStations.ToList() ?? throw new ArgumentNullException(nameof(stationService));
 
             PreviousPost_ComboBox.ItemsSource = stations;
             NextPost_ComboBox.ItemsSource = stations;
@@ -53,8 +54,10 @@ namespace SimRailDispatcherUtility.Windows
         private void Save_Button_Click(object sender, RoutedEventArgs e)
         {
             int id          = 0,
-                track       = 0,
                 minRemind   = 0;
+
+            string track = "";
+
             string? errors = null;
 
             Action<string> handleAppendError = (err) =>
@@ -93,9 +96,9 @@ namespace SimRailDispatcherUtility.Windows
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(Track_TextBox.Text) || !int.TryParse(Track_TextBox.Text, out track))
+            if (string.IsNullOrWhiteSpace(Track_TextBox.Text))
             {
-                handleAppendError("Track number must be numeric!");
+                handleAppendError("Track number must be entered!");
             }
 
             var date = DepartureDate_DatePicker.SelectedDate?.Date;
@@ -146,7 +149,7 @@ namespace SimRailDispatcherUtility.Windows
                 id,
                 PreviousPost_ComboBox.Text,
                 NextPost_ComboBox.Text,
-                (short)track,
+                track,
                 departure!.Value,
                 stopType!.Value,
                 trainType!.Value,

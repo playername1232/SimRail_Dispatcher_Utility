@@ -37,7 +37,7 @@ public sealed class TrainRow : INotifyPropertyChanged
     public int Id => Train.Id;
     public string PreviousPost => Train.PreviousPost;
     public string NextPost => Train.NextPost;
-    public short TrackNumber => Train.TrackNumber;
+    public string TrackNumber => Train.TrackNumber;
     public DateTime DepartureTime => Train.DepartureTime;
     public bool IsDrivenByPlayer => Train.IsDrivenByPlayer;
     public TimeSpan ReminderOffset => Train.ReminderOffset;

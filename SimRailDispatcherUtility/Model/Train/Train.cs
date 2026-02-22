@@ -7,7 +7,7 @@ public class Train
     public int Id { get; }
     public string PreviousPost { get; }
     public string NextPost { get; }
-    public short TrackNumber { get; }
+    public string TrackNumber { get; }
     public DateTime DepartureTime { get; }
     public StopType StopType { get; }
     public TrainType TrainType { get; }
@@ -19,7 +19,7 @@ public class Train
         int id,
         string previousPost,
         string nextPost,
-        short trackNumber,
+        string trackNumber,
         DateTime departureTime,
         StopType stopType,
         TrainType trainType,

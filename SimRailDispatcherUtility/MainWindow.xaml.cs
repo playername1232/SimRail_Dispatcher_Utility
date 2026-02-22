@@ -1,28 +1,43 @@
-﻿using Serilog;
-using SimRailDispatcherUtility.enums.Train;
+﻿using SimRailDispatcherUtility.enums.Train;
 using SimRailDispatcherUtility.Model.Train;
 using SimRailDispatcherUtility.Services;
 using SimRailDispatcherUtility.Windows;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace SimRailDispatcherUtility;
 
 public partial class MainWindow : Window
 {
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-    private readonly ObservableCollection<TrainRow> _trains = null!;
-    private readonly ILogger _logger = null!;
-    private readonly TrainReminderScheduler _scheduler = null!;
+
+    #region Dependency Injection var
     
+    private readonly ILogger<MainWindow> _logger;
+    private readonly StationService _stationService;
+    private readonly Func<AddTrainWindow> _addTrainFactory;
+
+    #endregion
+    
+    private readonly ObservableCollection<TrainRow> _trains = null!;
+    private readonly TrainReminderScheduler _scheduler = null!;
+
     private readonly DispatcherTimer _gcTimer = new();
     private int _gcOldTrainsDelay = 100;
 
-    public MainWindow()
+    public MainWindow(ILogger<MainWindow> logger, StationService stationService, Func<AddTrainWindow> addTrainFactory)
     {
         InitializeComponent();
+
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _stationService = stationService ?? throw new ArgumentNullException(nameof(stationService));
+        _addTrainFactory = addTrainFactory ?? throw new ArgumentNullException(nameof(addTrainFactory));
+
+        this.IsEnabled = false;
 
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
@@ -30,11 +45,6 @@ public partial class MainWindow : Window
         {
             _trains = new ObservableCollection<TrainRow>();
             TrainTimers_ListView.ItemsSource = _trains;
-        
-            _logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateLogger();
-
 
             _scheduler = new TrainReminderScheduler(_trains, Dispatcher);
             _scheduler.ReminderFired += OnReminderFired;
@@ -52,7 +62,7 @@ public partial class MainWindow : Window
                 11111,
                 "Bohumín",
                 "Ostrava-Svinov",
-                4,
+                "H4",
                 DateTime.Parse("22.2.2026 01:29:00", new CultureInfo("cs-CZ")),
                 StopType.PassengerStop,
                 TrainType.Intercity,
@@ -70,7 +80,7 @@ public partial class MainWindow : Window
 
     public void AddTrain(object sender, Train train)
     {
-        if (sender is AddTrain)
+        if (sender is AddTrainWindow)
         {
             _trains.Add(new TrainRow(train));
         }
@@ -78,7 +88,7 @@ public partial class MainWindow : Window
 
     private void OnReminderFired(object? sender, TrainRow row)
     {
-        _logger.Information("REMINDER: Train {Id} departs in ~1 minute ({Dep:g})", row.Id, row.DepartureTime);
+        _logger.LogInformation("REMINDER: Train {Id} departs in ~1 minute ({Dep:g})", row.Id, row.DepartureTime);
 
         // TODO: lepší je toast / tray icon; tohle je jen demo
         MessageBox.Show(
@@ -100,6 +110,8 @@ public partial class MainWindow : Window
         }
     }
 
+    
+
     protected override void OnClosed(EventArgs e)
     {
         _scheduler.ReminderFired -= OnReminderFired;
@@ -119,10 +131,56 @@ public partial class MainWindow : Window
 
     private void AddTrain_Button_Click(object sender, RoutedEventArgs e)
     {
-        AddTrain addWindow = new();
-        addWindow.Owner = this;
+        if (_stationService.CurrentNeighborStations.Count == 0)
+        {
+            MessageBox.Show(
+                "No neighbor stations were loaded yet. Try selecting current station",
+                "No neighbor stations",
+                MessageBoxButton.OK);
+            return;
+        }
 
+        var addWindow = _addTrainFactory();
+        addWindow.Owner = this;
         addWindow.Show();
+        IsEnabled = false;
+    }
+
+    private async void TimeTable_Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await _stationService.LoadTimetablesJsonAsync();
+            await _stationService.LoadStationsAsync();
+
+            SelectedStation_ComboBox.ItemsSource =
+                _stationService.Stations.Select(x => x.Name).ToList();
+
+            this.IsEnabled = true;
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(exception.Message, "Error has occured", MessageBoxButton.OK);
+            Application.Current.Shutdown();
+        }
+    }
+
+    private void SelectedStation_ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        string? selectedStation = ((ComboBox)sender).SelectedItem.ToString();
+
+        if (selectedStation is null)
+            return;
+
         this.IsEnabled = false;
+
+        for (int i = 0; i < _trains.Count; i++)
+        {
+            _trains.Clear();
+        }
+
+        _stationService.ComputeNeighborStations(selectedStation);
+
+        this.IsEnabled = true;
     }
 }
