@@ -16,12 +16,13 @@ Core functionality for managing trains manually.
 
 - [x] Add and remove trains
 - [x] Live countdown to departure
-- [] Reminder notifications (Currently implemented via windows built-in MessageBox)
-- [] Train state handling
 - [x] Config-driven dropdowns (Posts, Train and Stop types)
 - [x] Automatic cleanup of outdated entries (Configurable via appsettings)
 - [x] Context menu actions
-
+- [X] Load station list from API
+- [X] Dynamic station switching
+- [X] Extract neighboring stations from timetable data
+- [X] Remove manual station config
 ---
 
 ## 🚧 Iteration 2 — API-Driven Stations & Routing
@@ -29,13 +30,10 @@ Core functionality for managing trains manually.
 Automate station handling using SimRail open API.
 
 Planned:
+- [ ] Reminder notifications (Currently implemented via windows built-in MessageBox)
+- [ ] Train state handling (Scheduled / Arrived / Departed)
 
-- [ ] Load station list from API
-- [ ] Extract neighboring stations from timetable data
-- [ ] Dynamic station switching
-- [ ] Remove manual station config
-
-Goal: eliminate static configuration and reflect real network topology.
+Goal: Provide the user better control over trains
 
 ---
 
