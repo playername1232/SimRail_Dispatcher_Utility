@@ -1,43 +1,44 @@
-
----
-
-# 🗺 ROADMAP.md
-
-```md
 # SimRail Dispatcher Utility — Roadmap
 
 This document outlines planned features and long-term direction of the project.
 
 ---
 
-## ✅ Iteration 1 — Manual Mode (Current)
+## ✅ Iteration 1 — Manual Mode (v0.1.0)
 
 Core functionality for managing trains manually.
 
 - [x] Add and remove trains
 - [x] Live countdown to departure
-- [x] Config-driven dropdowns (Posts, Train and Stop types)
-- [x] Automatic cleanup of outdated entries (Configurable via appsettings)
+- [x] Config-driven dropdowns (posts, train types, stop types)
+- [x] Automatic cleanup of outdated entries (configurable via appsettings)
 - [x] Context menu actions
-- [X] Load station list from API
-- [X] Dynamic station switching
-- [X] Extract neighboring stations from timetable data
-- [X] Remove manual station config
+
 ---
 
-## 🚧 Iteration 2 — API-Driven Stations & Routing
+## ✅ Iteration 2 — API-Driven Stations & Routing (v0.2.0)
 
-Automate station handling using SimRail open API.
+- [x] Load station list from SimRail API
+- [x] Dynamic station switching
+- [x] Extract neighboring stations from timetable data
+- [x] Remove manual station configuration
+
+---
+
+## 🚧 Iteration 3 — User Experience Improvements (v0.3.x)
 
 Planned:
-- [ ] Reminder notifications (Currently implemented via windows built-in MessageBox)
-- [ ] Train state handling (Scheduled / Arrived / Departed)
 
-Goal: Provide the user better control over trains
+- [ ] Native reminder notifications (replace MessageBox)
+- [ ] Improved train state handling (scheduled, arriving, departed)
+- [ ] Input validation & smarter defaults
+- [ ] Minor UI polish & accessibility tweaks
+
+Goal: smoother and more intuitive dispatcher workflow.
 
 ---
 
-## 🔮 Iteration 3 — Automatic Train Import
+## 🔮 Iteration 4 — Automatic Train Import (v0.4.x)
 
 Populate train list directly from SimRail API.
 
@@ -67,4 +68,4 @@ Potential enhancements:
 
 ## 📌 Notes
 
-Roadmap may evolve as the project grows and community feedback arrives.
+The roadmap may evolve as the project grows and community feedback arrives.
