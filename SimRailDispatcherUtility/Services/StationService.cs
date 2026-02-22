@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using SimRailDispatcherUtility.Model;
 using SimRailDispatcherUtility.Model.StationServiceModels;
@@ -82,50 +83,142 @@ public class StationService
             Stations.Add(x);
         });
     }
-
+    
     public void ComputeNeighborStations(string stationName)
     {
         if (string.IsNullOrWhiteSpace(stationName))
             return;
 
-        string json = File.ReadAllText(Environment.ExpandEnvironmentVariables(GetTimetablesFileRawPath()));
+        // Source of truth for "valid posts"
+        // Timetable contains posts that are not visible / available to dispatcher
+        // eg.
+        // Skierniewice should have: Belchów, Zyrardow, Plycwia, Puszcza Marianska
+        // but Train Timetable contains minor posts between these posts. + Some Major posts are not in Stations API e.g. Belchów
+        var stationsByCanonical = Stations
+            .Select(s => s.Name)
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .Select(n => n.Trim())
+            .GroupBy(CanonicalizePointName, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
+        if (stationsByCanonical.Count == 0)
+            return;
+
+        string json = File.ReadAllText(Environment.ExpandEnvironmentVariables(GetTimetablesFileRawPath()));
         var trains = JsonSerializer.Deserialize<List<TrainRun>>(json) ?? new List<TrainRun>();
 
-        var neighbors = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        // store canonical to avoid duplicates from different spellings
+        var neighborByCanonical = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        var targetCanonical = CanonicalizePointName(stationName);
 
         foreach (var train in trains)
         {
-            var timetable = train.Timetable;
-            if (timetable is null || timetable.Count == 0)
+            var tt = train.Timetable;
+            if (tt is null || tt.Count == 0)
                 continue;
 
-            for (int i = 0; i < timetable.Count; i++)
+            for (int i = 0; i < tt.Count; i++)
             {
-                if (!string.Equals(timetable[i].NameOfPoint, stationName, StringComparison.OrdinalIgnoreCase))
+                var curRaw = tt[i].NameOfPoint;
+                if (string.IsNullOrWhiteSpace(curRaw))
                     continue;
 
-                // previous station
-                if (i - 1 >= 0)
-                {
-                    var prev = timetable[i - 1].NameOfPoint;
-                    if (!string.IsNullOrWhiteSpace(prev) && !string.Equals(prev, stationName, StringComparison.OrdinalIgnoreCase))
-                        neighbors.Add(prev);
-                }
+                if (!string.Equals(CanonicalizePointName(curRaw), targetCanonical, StringComparison.OrdinalIgnoreCase))
+                    continue;
 
-                // next station
-                if (i + 1 < timetable.Count)
-                {
-                    var next = timetable[i + 1].NameOfPoint;
-                    if (!string.IsNullOrWhiteSpace(next) && !string.Equals(next, stationName, StringComparison.OrdinalIgnoreCase))
-                        neighbors.Add(next);
-                }
+                var prev = FindNearestNeighbor(tt, i, -1, targetCanonical, stationsByCanonical);
+                if (prev is not null)
+                    neighborByCanonical[prev.Value.Canonical] = prev.Value.Display;
+
+                var next = FindNearestNeighbor(tt, i, +1, targetCanonical, stationsByCanonical);
+                if (next is not null)
+                    neighborByCanonical[next.Value.Canonical] = next.Value.Display;
             }
         }
 
         CurrentNeighborStations.Clear();
-        foreach (var n in neighbors.OrderBy(x => x))
-            CurrentNeighborStations.Add(n);
+        foreach (var display in neighborByCanonical.Values.OrderBy(x => x))
+            CurrentNeighborStations.Add(display);
+    }
+
+    private static (string Canonical, string Display)? FindNearestNeighbor(
+        IList<TimetablePoint> timetable,
+        int fromIndex,
+        int step,
+        string targetCanonical,
+        Dictionary<string, string> stationsByCanonical)
+    {
+        // PASS 1: Prefer official stations from Stations API
+        for (int j = fromIndex + step; j >= 0 && j < timetable.Count; j += step)
+        {
+            var raw = timetable[j].NameOfPoint;
+            if (string.IsNullOrWhiteSpace(raw))
+                continue;
+
+            if (LooksLikeSubPoint(raw))
+                continue;
+
+            var canon = CanonicalizePointName(raw);
+            if (string.IsNullOrWhiteSpace(canon))
+                continue;
+
+            // 🚫 never return self
+            if (string.Equals(canon, targetCanonical, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (stationsByCanonical.TryGetValue(canon, out var display))
+                return (canon, display);
+        }
+
+        // PASS 2: Fallback to timetable points (cleaned), e.g. Biechów
+        for (int j = fromIndex + step; j >= 0 && j < timetable.Count; j += step)
+        {
+            var raw = timetable[j].NameOfPoint;
+            if (string.IsNullOrWhiteSpace(raw))
+                continue;
+
+            if (LooksLikeSubPoint(raw))
+                continue;
+
+            var canon = CanonicalizePointName(raw);
+            if (string.IsNullOrWhiteSpace(canon))
+                continue;
+
+            // 🚫 never return self (important: same check here!)
+            if (string.Equals(canon, targetCanonical, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            // ✅ display: if exists in Stations, use it; else use canonical (fallback)
+            if (stationsByCanonical.TryGetValue(canon, out var display))
+                return (canon, display);
+
+            return (canon, canon);
+        }
+
+        return null;
+    }
+
+    private static string CanonicalizePointName(string name)
+    {
+        name = name.Trim();
+
+        // remove common timetable suffix variants
+        name = Regex.Replace(name, @"\s+R\d+\b.*$", "", RegexOptions.IgnoreCase);
+        name = Regex.Replace(name, @"\s+GT\b.*$", "", RegexOptions.IgnoreCase);
+        name = Regex.Replace(name, @"\s+(M|S)?\s*PZS\b.*$", "", RegexOptions.IgnoreCase);
+
+        name = Regex.Replace(name, @"\s{2,}", " ").Trim();
+        return name;
+    }
+
+    private static bool LooksLikeSubPoint(string rawName)
+    {
+        rawName = rawName.Trim();
+
+        return Regex.IsMatch(rawName, @"\bGT\b", RegexOptions.IgnoreCase) ||
+               Regex.IsMatch(rawName, @"\bPZS\b", RegexOptions.IgnoreCase) ||
+               Regex.IsMatch(rawName, @"\bR\d+\b", RegexOptions.IgnoreCase);
     }
 
     private string GetStationsBaseUrl()

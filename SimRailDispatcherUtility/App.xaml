@@ -1,7 +1,8 @@
 ﻿<Application x:Class="SimRailDispatcherUtility.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:SimRailDispatcherUtility">
+             xmlns:local="clr-namespace:SimRailDispatcherUtility"
+             >
     <Application.Resources>
          
     </Application.Resources>

@@ -44,7 +44,14 @@ namespace SimRailDispatcherUtility.Windows
 
         private void Cancel_Button_Click(object sender, RoutedEventArgs e)
         {
-            var response = MessageBox.Show("Do you want to cancel adding new train?", "Cancel action", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var response =
+                MessageBox.Show(
+                    this,
+                    "Do you want to cancel adding new train?",
+                    "Cancel action",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
             if (response == MessageBoxResult.Yes)
             {
                 this.Close();
@@ -141,7 +148,7 @@ namespace SimRailDispatcherUtility.Windows
 
             if (errors != null)
             {
-                MessageBox.Show(errors, "Missing required data", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                MessageBox.Show(this, errors, "Missing required data", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 return;
             }
 

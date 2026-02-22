@@ -199,6 +199,7 @@
                         <StackPanel Grid.Row="10" Grid.Column="1" Orientation="Horizontal">
                             <TextBox x:Name="ReminderMinutes_TextBox"
                                      Width="110"
+                                     Text="1"
                                      Style="{StaticResource TextBoxStyle}"
                                      ToolTip="Minutes (e.g., 1)"/>
                             <TextBlock VerticalAlignment="Center"

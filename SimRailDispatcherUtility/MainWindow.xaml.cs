@@ -4,6 +4,7 @@ using SimRailDispatcherUtility.Services;
 using SimRailDispatcherUtility.Windows;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -38,6 +39,9 @@ public partial class MainWindow : Window
         _addTrainFactory = addTrainFactory ?? throw new ArgumentNullException(nameof(addTrainFactory));
 
         this.IsEnabled = false;
+
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        Title = $"SimRail Dispatcher Utility v{version}";
 
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
@@ -90,6 +94,7 @@ public partial class MainWindow : Window
     {
         // TODO: lepší je toast / tray icon; tohle je jen demo
         MessageBox.Show(
+            this,
             $"Train {row.Id} departs in ~1 minute!\n{row.PreviousPost} → {row.NextPost}\nTrack {row.TrackNumber}\nDeparture: {row.DepartureTime:g}",
             "SimRail Reminder",
             MessageBoxButton.OK,
@@ -132,6 +137,7 @@ public partial class MainWindow : Window
         if (_stationService.CurrentNeighborStations.Count == 0)
         {
             MessageBox.Show(
+                this,
                 "No neighbor stations were loaded yet. Try selecting current station",
                 "No neighbor stations",
                 MessageBoxButton.OK);
@@ -158,7 +164,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception)
         {
-            MessageBox.Show(exception.Message, "Error has occured", MessageBoxButton.OK);
+            MessageBox.Show(this, exception.Message, "Error has occured", MessageBoxButton.OK);
             Application.Current.Shutdown();
         }
     }
