@@ -185,11 +185,11 @@ public class StationService
             if (string.IsNullOrWhiteSpace(canon))
                 continue;
 
-            // 🚫 never return self (important: same check here!)
+            // never return self (important: same check here!)
             if (string.Equals(canon, targetCanonical, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            // ✅ display: if exists in Stations, use it; else use canonical (fallback)
+            // display: if exists in Stations, use it; else use canonical (fallback)
             if (stationsByCanonical.TryGetValue(canon, out var display))
                 return (canon, display);
 
