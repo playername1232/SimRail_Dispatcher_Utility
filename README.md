@@ -1,14 +1,15 @@
 # SimRail Dispatcher Utility
 
-# License: MIT
+License: MIT
 
-Open-source WPF companion app for SimRail dispatchers. Provides a live train list with time-to-departure, configurable reminders and notifications, and station-oriented workflow.
+Open-source WPF companion app for SimRail dispatchers.  
+Provides a live train list with time-to-departure, configurable reminders and notifications, and station-oriented workflow.
 
 Built to eliminate constant timetable watching when handling delayed departures.
 
 ---
 
-## ✨ Current Features (v0.1)
+## 🚆 Release v0.1.0 – Core features
 
 - Manual train management (add/remove)
 - Live countdown to departure
@@ -20,6 +21,17 @@ Built to eliminate constant timetable watching when handling delayed departures.
 
 ---
 
+## 🚆 Release v0.2.0 – API & architecture update
+
+- Dependency Injection architecture (services & windows)
+- API integration with SimRail timetable endpoint
+- Configurable API endpoints and local cache paths
+- Dynamic station loading from live data
+- Neighbor station resolution for route building
+- Service-based data flow between backend and UI
+
+---
+
 ## 🚀 Getting Started
 
 ### Requirements
@@ -28,14 +40,9 @@ Built to eliminate constant timetable watching when handling delayed departures.
 
 ### Run locally
 
-1. Clone the repository
-2. Copy the example configuration: Settings/appsettings.example.json → Settings/appsettings.json
-3. Run via Rider / Visual Studio: "dotnet run"
+1. Clone the repository  
+2. Copy configuration: `Settings/appsettings.example.json` → `Settings/appsettings.json`  
+3. Run using Rider or Visual Studio:
 
-4. 🗺 Roadmap
-See full roadmap in [ROADMAP.md](/ROADMAP.md)
-
-🤝 Contributing
-
-Ideas, bug reports and pull requests are welcome.
-Feel free to open an issue to discuss improvements.
+```bash
+dotnet run
